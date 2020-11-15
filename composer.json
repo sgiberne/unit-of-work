@@ -1,0 +1,27 @@
+{
+    "name": "sgiberne/unit-of-work",
+    "authors": [
+        {
+            "name": "Stéphane GIBERNE",
+            "email": "stephane.giberne@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^7.4",
+        "ext-pdo": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.4"
+    },
+    "autoload" : {
+      "psr-4" : {
+        "Sgiberne\\UnitOfWork\\": "src/"
+      }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Sgiberne\\UnitOfWork\\Tests\\": "tests/",
+            "Sgiberne\\UnitOfWork\\Tests\\Data\\": "tests/data"
+        }
+    }
+}
