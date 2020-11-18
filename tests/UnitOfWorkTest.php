@@ -30,8 +30,6 @@ final class UnitOfWorkTest extends TestCase
 
     public function setUp(): void
     {
-        $databaseName = DatabasePhpunitTestPdoCreator::DATABASE_NAME;
-
         $adapter = new PDOAdapter(
             sprintf('mysql:dbname=%s;host=%s;port=%s', DatabasePhpunitTestPdoCreator::DATABASE_NAME, DatabasePhpunitTestPdoCreator::DATABASE_HOST, DatabasePhpunitTestPdoCreator::DATABASE_PORT),
             DatabasePhpunitTestPdoCreator::DATABASE_USER,
@@ -82,7 +80,7 @@ final class UnitOfWorkTest extends TestCase
      */
     public function testFetchAll(): void
     {
-        $actorsFromDatabase = $this->unitOfWork->fetchAll([], "", [], ['id' => 'ASC']);
+        $actorsFromDatabase = $this->unitOfWork->fetchAll([], [], [], ['id' => 'ASC']);
 
         $this->assertInstanceOf(EntityCollection::class, $actorsFromDatabase);
         $this->assertCount(3, $actorsFromDatabase);
@@ -91,6 +89,28 @@ final class UnitOfWorkTest extends TestCase
             $this->assertInstanceOf(Actor::class, $actor);
             $this->assertSame($key + 1, $actor->id);
         }
+    }
+
+    /**
+     * @depends testRegisterNewAndFetchById
+     */
+    public function testFetchAllWithWhere(): void
+    {
+        $actorsFromDatabase = $this->unitOfWork->fetchAll([], ['firstname = "Sarah"']);
+
+        $this->assertInstanceOf(EntityCollection::class, $actorsFromDatabase);
+        $this->assertCount(1, $actorsFromDatabase);
+
+        foreach ($actorsFromDatabase->toArray() as $actor) {
+            $this->assertInstanceOf(Actor::class, $actor);
+            $this->assertSame(3, $actor->id);
+            $this->assertSame('Sarah', $actor->firstname);
+        }
+
+        $actorsFromDatabase = $this->unitOfWork->fetchAll([], ['firstname = "Sarah"', 'OR' => "url_avatar = 'laposte.fr/amandine.jpeg'"]);
+
+        $this->assertInstanceOf(EntityCollection::class, $actorsFromDatabase);
+        $this->assertCount(2, $actorsFromDatabase);
     }
 
     /**

@@ -9,7 +9,6 @@ git clone git@github.com:sgiberne/unit-of-work.git
 ```
 
 # Todo
-- manage where condition with an array
 - add transaction and rollback
 - implement relation between entities
 - more test units

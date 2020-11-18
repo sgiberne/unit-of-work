@@ -9,11 +9,9 @@ interface DataMapperInterface
 {
     public function fetchById(string $id);
 
-    /** @todo I think $where should be an array */
-    public function fetchAll(array $bind = [], string $where = "", array $options = [], array $orderBy = []): ?EntityCollection;
+    public function fetchAll(array $bind = [], array $where = [], array $options = [], array $orderBy = []): ?EntityCollection;
 
-    /** @todo I think $where should be an array */
-    public function select(array $bind = [], string $where = "", array $options = [], array $orderBy = []): ?EntityCollection;
+    public function select(array $bind = [], array $where = [], array $options = [], array $orderBy = []): ?EntityCollection;
 
     public function insert(EntityInterface $entity): int;
 

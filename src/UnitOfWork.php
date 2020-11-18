@@ -114,7 +114,7 @@ class UnitOfWork
         return $this;
     }
 
-    public function fetchAll(array $bind = [], string $where = "", array $options = [], array $orderBy = []): ?EntityCollection
+    public function fetchAll(array $bind = [], array $where = [], array $options = [], array $orderBy = []): ?EntityCollection
     {
         $entities = $this->dataMapper->fetchAll($bind, $where, $options, $orderBy);
 
@@ -129,7 +129,7 @@ class UnitOfWork
         return null;
     }
 
-    public function select(array $bind = [], string $where = "", array $options = [], array $orderBy = []): ?EntityInterface
+    public function select(array $bind = [], array $where = [], array $options = [], array $orderBy = []): ?EntityInterface
     {
         $entity = $this->dataMapper->select($bind, $where, $options, $orderBy);
 

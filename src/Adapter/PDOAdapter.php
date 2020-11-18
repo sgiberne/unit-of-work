@@ -4,6 +4,24 @@ namespace Sgiberne\UnitOfWork\Adapter;
 
 final class PDOAdapter
 {
+    public const ASCENDING_ORDER = 'ASC';
+    public const DESCENDING_ORDER = 'DESC';
+
+    public const LOGICAL_OPERATOR_AND = 'AND';
+    public const LOGICAL_OPERATOR_OR = 'OR';
+    public const LOGICAL_OPERATOR_NOT = 'NOT';
+    public const LOGICAL_OPERATOR_XOR = 'XOR';
+
+    public const LOGICAL_OPERATORS = [
+        self::LOGICAL_OPERATOR_AND,
+        '&&',
+        self::LOGICAL_OPERATOR_OR,
+        '||',
+        self::LOGICAL_OPERATOR_NOT,
+        '!',
+        self::LOGICAL_OPERATOR_XOR,
+    ];
+
     protected ?\PDO $connection = null;
     protected ?\PDOStatement $statement = null;
     protected int $fetchMode = \PDO::FETCH_ASSOC;
@@ -105,7 +123,7 @@ final class PDOAdapter
         }
     }
 
-    public function select(string $table, array $bind = [], string $where = "", array $options = [], array $orderBy = []): self
+    public function select(string $table, array $bind = [], array $where = [], array $options = [], array $orderBy = []): self
     {
         $bindParameters = [];
         foreach ($bind as $col => $value) {
@@ -114,11 +132,7 @@ final class PDOAdapter
 
         $fields = $options['fields'] ?? '*';
         $sql = "SELECT $fields FROM $table";
-
-        if (strlen($where) > 2) {
-            $sql .= " WHERE $where";
-        }
-
+        $sql .= $this->getWhereCondition($where);
         $sql .= $this->getOrderByCondition($orderBy);
 
         $this->prepare($sql)
@@ -137,8 +151,13 @@ final class PDOAdapter
         $iteration = 0;
 
         foreach ($orderBy as $field => $order) {
+            $order = strtoupper($order);
             if ($iteration > 0 && $iteration < count($orderBy)) {
                 $orderByCondition .= ', ';
+            }
+
+            if (!in_array($order, [self::ASCENDING_ORDER, self::DESCENDING_ORDER], true)) {
+                throw new \RuntimeException(sprintf('Invalid order. %s given. Allowed: %s, %s', $order, self::ASCENDING_ORDER, self::DESCENDING_ORDER));
             }
 
             $orderByCondition .= "$field $order";
@@ -146,6 +165,28 @@ final class PDOAdapter
         }
 
         return $orderByCondition;
+    }
+
+    private function getWhereCondition(array $where): string
+    {
+        if (empty($where)) {
+            return '';
+        }
+
+        $whereCondition = ' WHERE ';
+        $iteration = 0;
+
+        foreach ($where as $logicalOperator => $condition) {
+            if ($iteration > 0) {
+                $operator = in_array($logicalOperator, self::LOGICAL_OPERATORS, true) ? $logicalOperator : self::LOGICAL_OPERATOR_AND;
+                $whereCondition .= " $operator ";
+            }
+
+            $whereCondition .= $condition;
+            $iteration++;
+        }
+
+        return $whereCondition;
     }
 
     public function insert(string $table, array $bind): int

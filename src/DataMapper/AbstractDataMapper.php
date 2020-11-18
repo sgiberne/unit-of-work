@@ -19,7 +19,7 @@ abstract class AbstractDataMapper implements DataMapperInterface
 
     public function fetchById(string $id): ?EntityInterface
     {
-        $this->adapter->select($this->getEntityTable(), ['id' => $id], 'id=:id');
+        $this->adapter->select($this->getEntityTable(), ['id' => $id], ['id=:id']);
 
         if (!$row = $this->adapter->fetch()) {
             return null;
@@ -28,7 +28,7 @@ abstract class AbstractDataMapper implements DataMapperInterface
         return $this->loadEntity($row);
     }
 
-    public function fetchAll(array $bind = [], string $where = "", array $options = [], array $orderBy = []): ?EntityCollection
+    public function fetchAll(array $bind = [], array $where = [], array $options = [], array $orderBy = []): ?EntityCollection
     {
         $this->adapter->select($this->getEntityTable(), $bind, $where, $options, $orderBy);
         $rows = $this->adapter->fetchAll();
@@ -40,7 +40,7 @@ abstract class AbstractDataMapper implements DataMapperInterface
         return $this->loadEntityCollection($rows);
     }
 
-    public function select(array $bind = [], string $where = "", array $options = [], array $orderBy = []) : ?EntityCollection
+    public function select(array $bind = [], array $where = [], array $options = [], array $orderBy = []) : ?EntityCollection
     {
         $this->adapter->select($this->getEntityTable(), $bind, $where, $options, $orderBy);
         $rows = $this->adapter->fetchAll();
