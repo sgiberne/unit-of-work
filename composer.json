@@ -1,5 +1,6 @@
 {
     "name": "sgiberne/unit-of-work",
+    "type": "library",
     "authors": [
         {
             "name": "Stéphane GIBERNE",
