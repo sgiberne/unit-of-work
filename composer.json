@@ -8,7 +8,7 @@
         }
     ],
     "require": {
-        "php": "^7.4",
+        "php": ">=7.4",
         "ext-pdo": "*"
     },
     "require-dev": {
@@ -16,13 +16,12 @@
     },
     "autoload" : {
       "psr-4" : {
-        "Sgiberne\\UnitOfWork\\": "src/"
+        "Sgiberne\\UnitOfWork\\": "src"
       }
     },
     "autoload-dev": {
         "psr-4": {
-            "Sgiberne\\UnitOfWork\\Tests\\": "tests/",
-            "Sgiberne\\UnitOfWork\\Tests\\Data\\": "tests/data"
+            "Sgiberne\\UnitOfWork\\Tests\\": "tests/"
         }
     }
 }
