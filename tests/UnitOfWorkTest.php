@@ -1,14 +1,14 @@
 <?php
 
-namespace Sgiberne\UnitOfWork\Tests\Adapter;
+namespace Sgiberne\UnitOfWork\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Sgiberne\DatabaseTools\DatabaseOperator\MysqlOperator;
 use Sgiberne\UnitOfWork\Adapter\PDOAdapter;
 use Sgiberne\UnitOfWork\Collection\EntityCollection;
 use Sgiberne\UnitOfWork\Storage\ObjectStorage;
 use Sgiberne\UnitOfWork\Tests\Data\DataMapper\ActorDataMapper;
 use Sgiberne\UnitOfWork\Tests\Data\Entity\Actor;
-use Sgiberne\UnitOfWork\Tests\DatabasePhpunitTestPdoCreator;
 use Sgiberne\UnitOfWork\UnitOfWork;
 
 final class UnitOfWorkTest extends TestCase
@@ -16,24 +16,48 @@ final class UnitOfWorkTest extends TestCase
 
     private ?UnitOfWork $unitOfWork;
 
+
+    public const DATABASE_USER = 'root';
+    public const DATABASE_PASSWORD = 'password';
+    public const DATABASE_HOST = 'mysql';
+    public const DATABASE_PORT = '3306';
+    private const DATABASE_NAME = 'unit_of_work_test';
+
     public static function setUpBeforeClass(): void
     {
-        $databasePhpunitTest = new DatabasePhpunitTestPdoCreator();
-        $databasePhpunitTest->createPhpunitTestDatabase();
-        $databasePhpunitTest->createActorTable();
+        $mysqlOperator = new MysqlOperator();
+        $mysqlOperator->connect(self::getDsn(),self::DATABASE_USER, self::DATABASE_PASSWORD );
+        $mysqlOperator->createDatabase(self::DATABASE_NAME);
+        $mysqlOperator->useDatabase(self::DATABASE_NAME);
+
+        $sqlFile = __DIR__.'/Data/Sql/create_table_actor.sql';
+        if (!is_file($sqlFile) || !is_readable($sqlFile)) {
+            throw new \RuntimeException("$sqlFile doesn't not exist or is not readable");
+        }
+
+        $mysqlOperator->executeSql(file_get_contents($sqlFile));
+        $mysqlOperator->disconnect();
     }
 
     public static function tearDownAfterClass(): void
     {
-        (new DatabasePhpunitTestPdoCreator())->dropDatabase();
+        $mysqlOperator = new MysqlOperator();
+        $mysqlOperator->connect(self::getDsn(),self::DATABASE_USER, self::DATABASE_PASSWORD );
+        $mysqlOperator->dropDatabase(self::DATABASE_NAME);
+        $mysqlOperator->disconnect();
+    }
+
+    private static function getDsn(): string
+    {
+        return sprintf("mysql:dbname=;host=%s;port=%s", self::DATABASE_HOST, self::DATABASE_PORT);
     }
 
     public function setUp(): void
     {
         $adapter = new PDOAdapter(
-            sprintf('mysql:dbname=%s;host=%s;port=%s', DatabasePhpunitTestPdoCreator::DATABASE_NAME, DatabasePhpunitTestPdoCreator::DATABASE_HOST, DatabasePhpunitTestPdoCreator::DATABASE_PORT),
-            DatabasePhpunitTestPdoCreator::DATABASE_USER,
-            DatabasePhpunitTestPdoCreator::DATABASE_PASSWORD
+            sprintf('mysql:dbname=%s;host=%s;port=%s', self::DATABASE_NAME, self::DATABASE_HOST, self::DATABASE_PORT),
+            self::DATABASE_USER,
+            self::DATABASE_PASSWORD
         );
         $this->unitOfWork = new UnitOfWork(
             new ActorDataMapper($adapter, new EntityCollection()),

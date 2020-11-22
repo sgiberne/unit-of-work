@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS actor(
+    id INT( 11 ) AUTO_INCREMENT PRIMARY KEY,
+    firstname VARCHAR( 50 ) NOT NULL,
+    lastname VARCHAR( 50 ) NOT NULL,
+    url_avatar VARCHAR( 550 ) NOT NULL
+);
